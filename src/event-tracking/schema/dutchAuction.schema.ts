@@ -1,19 +1,20 @@
 import { User } from "src/user/schema/user.schema";
-import { Column, Entity, ManyToOne, ObjectIdColumn } from "typeorm";
+import { Column, Entity, ManyToOne, ObjectIdColumn, PrimaryColumn } from "typeorm";
 
 @Entity()
 export class DutchAuction {
     @ObjectIdColumn()
     _id: string;
 
+    // @PrimaryColumn()
     @ManyToOne(type => User, user => user.auction, { eager: false })
-    seller: string;
+    seller: User;
 
     @Column()
     nft: string;
 
     @Column()
-    tokenId: number;
+    tokenId: string;
 
     @Column()
     startPrice: number;
