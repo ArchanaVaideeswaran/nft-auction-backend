@@ -1,10 +1,12 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { UserType } from "src/user/types/user.type";
 
 @ObjectType('Bid')
 export class BidType {
     @Field(type => ID)
-    bidder: UserType;
+    id: string;
+
+    @Field()
+    bidder: string;
 
     @Field()
     amount: number;
@@ -16,5 +18,14 @@ export class BidType {
     tokenId: number;
 
     @Field()
-    paymentToken: string;
+    executed: boolean;
+
+    @Field()
+    blockNumber: number;
+
+    @Field()
+    transactionHash: string;
+
+    @Field()
+    timestamp: number;
 }

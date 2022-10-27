@@ -1,10 +1,13 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { User } from "src/user/schema/user.schema";
+import { BidType } from "./bid.type";
 
 @ObjectType('DutchAuction')
 export class DutchAuctionType {
     @Field(type => ID)
-    seller: User;
+    id: string;
+
+    @Field()
+    seller: string;
 
     @Field()
     nft: string;
@@ -26,6 +29,9 @@ export class DutchAuctionType {
 
     @Field()
     paymentToken: string;
+
+    @Field(type => [BidType])
+    bids: BidType[];
 
     @Field()
     blockNumber: number;

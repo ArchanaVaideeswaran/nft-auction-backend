@@ -1,14 +1,16 @@
-import { User } from "src/user/schema/user.schema";
-import { Column, Entity, ManyToOne, ObjectIdColumn, PrimaryColumn } from "typeorm";
+import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Bid } from "./bid.schema";
 
 @Entity()
 export class DutchAuction {
     @ObjectIdColumn()
-    _id: string;
+    _id: ObjectID;
 
-    // @PrimaryColumn()
-    @ManyToOne(type => User, user => user.auction, { eager: false })
-    seller: User;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+
+    @Column()
+    seller: string;
 
     @Column()
     nft: string;
@@ -30,6 +32,9 @@ export class DutchAuction {
 
     @Column()
     paymentToken: string;
+
+    @Column(type => Bid)
+    bids: Bid[];
 
     @Column()
     blockNumber: number;

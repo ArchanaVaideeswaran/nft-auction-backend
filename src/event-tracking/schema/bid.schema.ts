@@ -1,14 +1,15 @@
-import { User } from "src/user/schema/user.schema";
-import { Column, Entity, ManyToOne, ObjectIdColumn, PrimaryColumn } from "typeorm";
+import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Bid {
     @ObjectIdColumn()
-    _id: string;
+    _id: ObjectID;
 
-    // @PrimaryColumn()
-    @ManyToOne(type => User, user => user.bid, { eager: false })
-    bidder: User;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
+
+    @Column()
+    bidder: string;
 
     @Column()
     amount: number;
@@ -19,6 +20,15 @@ export class Bid {
     @Column()
     tokenId: number;
 
+    @Column({ default: false })
+    executed: boolean;
+
     @Column()
-    paymentToken: string;
+    blockNumber: number;
+
+    @Column()
+    transactionHash: string;
+
+    @Column()
+    timestamp: number;
 }
