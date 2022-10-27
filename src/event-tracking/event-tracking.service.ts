@@ -13,6 +13,7 @@ import {
 import { createContractInstance } from 'src/blockchain/contractInstance';
 import web3Instance from 'src/blockchain/web3Instance';
 import { UserModule } from 'src/user/user.module';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { Bid } from './schema/bid.schema';
 import { DutchAuction } from './schema/dutchAuction.schema';
@@ -28,7 +29,7 @@ export class EventTrackingService implements OnModuleInit {
     @InjectRepository(Bid)
     private bidRepository: Repository<Bid>,
     @Inject(UserModule)
-    private userService
+    private userService: UserService,
   ) {}
   async onModuleInit(): Promise<void> {
     this.web3ProviderInstance = web3Instance;
@@ -151,14 +152,14 @@ export class EventTrackingService implements OnModuleInit {
           .getListing(result.nft, result.tokenId)
           .call();
 
-        console.log("Auction Item: ", item);
+        console.log('Auction Item: ', item);
 
         // let seller: User = await this.userService.findOne(item.seller);
 
         response = {
           seller: item.seller,
           nft: result.nft,
-          tokenId: (result.tokenId).toString(),
+          tokenId: result.tokenId.toString(),
           startPrice: parseFloat(ethers.utils.formatEther(item.startPrice)),
           endPrice: parseFloat(ethers.utils.formatEther(item.endPrice)),
           startTime: parseInt(item.startTime),
