@@ -1,22 +1,21 @@
-import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { BidStatus } from "../enums/bid-status.enum";
+import { Field, InputType } from "@nestjs/graphql";
+import { IsEthereumAddress } from "class-validator";
 
-@ObjectType('Bid')
-export class BidType {
-    @Field(type => ID)
+@InputType()
+export class NewBidInput {
+    @Field()
+    @IsEthereumAddress()
     bidder: string;
 
     @Field()
     amount: number;
 
     @Field()
+    @IsEthereumAddress()
     nft: string;
 
     @Field()
     tokenId: string;
-
-    @Field()
-    status: BidStatus;
 
     @Field()
     blockNumber: number;

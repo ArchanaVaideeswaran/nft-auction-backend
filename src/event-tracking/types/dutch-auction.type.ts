@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { DutchAuctionStatus } from "../enums/dutch-auction-status.enum";
 import { BidType } from "./bid.type";
 
 @ObjectType('DutchAuction')
@@ -29,6 +30,9 @@ export class DutchAuctionType {
 
     @Field()
     paymentToken: string;
+
+    @Field()
+    status: DutchAuctionStatus;
 
     @Field(type => [BidType])
     bids: BidType[];

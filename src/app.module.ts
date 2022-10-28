@@ -5,7 +5,7 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { DutchAuction } from './event-tracking/schema/dutchAuction.schema';
+import { DutchAuction } from './event-tracking/schema/dutch-auction.schema';
 import { Bid } from './event-tracking/schema/bid.schema';
 import { User } from './user/schema/user.schema';
 

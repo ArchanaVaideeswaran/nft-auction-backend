@@ -1,4 +1,5 @@
 import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { DutchAuctionStatus } from "../enums/dutch-auction-status.enum";
 import { Bid } from "./bid.schema";
 
 @Entity()
@@ -32,6 +33,9 @@ export class DutchAuction {
 
     @Column()
     paymentToken: string;
+    
+    @Column({ default: DutchAuctionStatus.NOT_ACTIVE })
+    status: DutchAuctionStatus;
 
     @Column(type => Bid)
     bids: Bid[];

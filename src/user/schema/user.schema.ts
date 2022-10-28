@@ -1,6 +1,6 @@
 import { Bid } from "src/event-tracking/schema/bid.schema";
-import { DutchAuction } from "src/event-tracking/schema/dutchAuction.schema";
-import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { DutchAuction } from "src/event-tracking/schema/dutch-auction.schema";
+import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {

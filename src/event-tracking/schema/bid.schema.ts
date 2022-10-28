@@ -1,13 +1,7 @@
-import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column } from "typeorm";
+import { BidStatus } from "../enums/bid-status.enum";
 
-@Entity()
 export class Bid {
-    @ObjectIdColumn()
-    _id: ObjectID;
-
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
     @Column()
     bidder: string;
 
@@ -18,10 +12,10 @@ export class Bid {
     nft: string;
 
     @Column()
-    tokenId: number;
+    tokenId: string;
 
-    @Column({ default: false })
-    executed: boolean;
+    @Column({ default: BidStatus.PENDING })
+    status: BidStatus;
 
     @Column()
     blockNumber: number;
