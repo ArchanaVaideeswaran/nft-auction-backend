@@ -31,8 +31,9 @@ export class DutchAuctionService {
         })[0];
 
         if (
-          availabeTxHash.transactionHash &&
-          availabeTxHash.transactionHash.length
+            availabeTxHash &&
+            availabeTxHash.transactionHash &&
+            availabeTxHash.transactionHash.length
         ){
             console.log(
                 '----------------',

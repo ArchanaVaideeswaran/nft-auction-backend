@@ -1,2 +1,2 @@
-export const dutchAuctionAddress = "0xc6e7DF5E7b4f2A278906862b61205850344D4e7d";
-export const wethAddress = "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c";
+export const dutchAuctionAddress = "0x851356ae760d987E095750cCeb3bC6014560891C";
+export const wethAddress = "0x1613beB3B2C4f22Ee086B2b38C1476A3cE7f78E8";

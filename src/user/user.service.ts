@@ -25,7 +25,7 @@ export class UserService {
         return this.userRepository.findOneBy({ address });
     }
 
-    create(newUserData: NewUserInput): Promise<User> {
+    addUser(newUserData: NewUserInput): Promise<User> {
         const user = this.userRepository.create(newUserData);
         return this.userRepository.save(user);
     }

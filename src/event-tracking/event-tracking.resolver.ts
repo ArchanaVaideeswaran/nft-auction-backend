@@ -1,9 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { DutchAuctionParams } from './dto/dutch-auction-params.dto';
 import { NewBidInput } from './dto/new-bid-input.dto';
 import { DutchAuctionService } from './dutch-auction.service';
-import { DutchAuctionType } from './types/dutch-auction.type';
+import { DutchAuction } from './schema/dutch-auction.schema';
 
 @Resolver()
 export class EventTrackingResolver {
@@ -12,13 +11,17 @@ export class EventTrackingResolver {
         private dutchAuctionService: DutchAuctionService
     ) {}
 
-    @Query(returns => [DutchAuctionType])
-    dutchAuctions(@Args('options') options?: DutchAuctionParams): Promise<DutchAuctionType[]> {
-        return this.dutchAuctionService.findAll(options);
+    @Query(returns => [DutchAuction])
+    dutchAuctions(
+        // @Args('options') options?: DutchAuctionParams
+    ): Promise<DutchAuction[]> {
+        return this.dutchAuctionService.findAll(
+            // options
+        );
     }
 
-    @Query(returns => DutchAuctionType)
-    dutchAuctionById(@Args('id') id: string): Promise<DutchAuctionType> {
+    @Query(returns => DutchAuction)
+    dutchAuctionById(@Args('id') id: string): Promise<DutchAuction> {
         const auction = this.dutchAuctionService.findById(id);
         if(!auction) {
             throw new NotFoundException(id);
@@ -26,8 +29,8 @@ export class EventTrackingResolver {
         return auction;
     }
 
-    @Mutation(returns => DutchAuctionType)
-    addBid(@Args('bidData') bidData: NewBidInput): Promise<DutchAuctionType> {
+    @Mutation(returns => DutchAuction)
+    addBid(@Args('bidData') bidData: NewBidInput): Promise<DutchAuction> {
         return this.dutchAuctionService.createOrUpdateBid(bidData);
     }
 }

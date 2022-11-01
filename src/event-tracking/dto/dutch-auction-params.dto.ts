@@ -1,6 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
 import { DutchAuctionStatus } from "../enums/dutch-auction-status.enum";
-import { BidType } from "../types/bid.type";
 import { NewBidInput } from "./new-bid-input.dto";
 
 @InputType()

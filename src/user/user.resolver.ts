@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { NewUserInput } from './dto/new-user-input.dto';
-import { UserType } from './types/user.type';
+import { User } from './schema/user.schema';
 import { UserService } from './user.service';
 
 @Resolver()
@@ -9,18 +9,18 @@ export class UserResolver {
 
     constructor(private readonly userService: UserService) {}
 
-    @Mutation(returns => UserType)
-    addUser(@Args('newUserData') newUserData: NewUserInput): Promise<UserType> {
-        return this.userService.create(newUserData);
+    @Mutation(returns => User)
+    addUser(@Args('newUserData') newUserData: NewUserInput): Promise<User> {
+        return this.userService.addUser(newUserData);
     }
 
-    @Query(returns => [UserType])
-    users(): Promise<UserType[]> {
+    @Query(returns => [User])
+    users(): Promise<User[]> {
         return this.userService.findAll();
     }
 
-    @Query(returns => UserType)
-    user(@Args('id') id: string): Promise<UserType> {
+    @Query(returns => User)
+    user(@Args('id') id: string): Promise<User> {
         const user = this.userService.findById(id);
         if (!user) {
             throw new NotFoundException(id);
@@ -28,8 +28,8 @@ export class UserResolver {
         return user;
     }
     
-    @Query(returns => UserType)
-    userByAddress(@Args('address') address: string): Promise<UserType> {
+    @Query(returns => User)
+    userByAddress(@Args('address') address: string): Promise<User> {
         const user = this.userService.findByAddress(address);
         if (!user) {
             throw new NotFoundException(address);

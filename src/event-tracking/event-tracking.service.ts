@@ -173,8 +173,9 @@ export class EventTrackingService implements OnModuleInit {
 
 				console.log('Auction Item: ', newAuctionData);
 
-				dbResponse = this.dutchAuctionService.createAuction(newAuctionData);
-				if (dbResponse) this.userService.addAuction(dbResponse);
+				dbResponse = await this.dutchAuctionService.createAuction(newAuctionData);
+				// if (dbResponse != null) 
+				// 	this.userService.addAuction(dbResponse);
 
 				break;
 
