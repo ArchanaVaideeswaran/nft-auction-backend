@@ -1,67 +1,70 @@
-import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 import { DutchAuctionStatus } from "../enums/dutch-auction-status.enum";
-import { Bid } from "./bid.schema";
+import { Bid, BidSchema } from "./bid.schema";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { AbstractBaseEntity } from 'src/common/schema/abstract-base.schema';
+
+export type DutchAuctionDocument = DutchAuction & Document;
 
 @ObjectType()
-@Entity()
-export class DutchAuction {
-    @ObjectIdColumn()
-    _id: ObjectID;
-
+@Schema()
+export class DutchAuction extends AbstractBaseEntity {
     @Field(type => ID)
-    @PrimaryGeneratedColumn('uuid')
+    @Prop()
     id: string;
 
     @Field()
-    @Column()
+    @Prop()
     seller: string;
 
     @Field()
-    @Column()
+    @Prop()
     nft: string;
 
     @Field()
-    @Column()
+    @Prop()
     tokenId: string;
 
     @Field()
-    @Column()
+    @Prop()
     startPrice: number;
 
     @Field()
-    @Column()
+    @Prop()
     endPrice: number;
 
     @Field()
-    @Column()
+    @Prop()
     startTime: number;
 
     @Field()
-    @Column()
+    @Prop()
     duration: number;
 
     @Field()
-    @Column()
+    @Prop()
     paymentToken: string;
     
     @Field()
-    @Column({ default: DutchAuctionStatus.NOT_ACTIVE })
+    @Prop({ default: DutchAuctionStatus.NOT_ACTIVE })
     status: string;
 
     @Field(type => [Bid])
-    @Column(type => Bid)
+    @Prop({type: [{ type: BidSchema, ref: 'Bid' }]})
     bids: Bid[];
 
     @Field()
-    @Column()
+    @Prop()
     blockNumber: number;
 
     @Field()
-    @Column()
+    @Prop()
     transactionHash: string;
 
     @Field()
-    @Column()
+    @Prop()
     timestamp: number;
 }
+
+export const DutchAuctionSchema = SchemaFactory.createForClass(DutchAuction);

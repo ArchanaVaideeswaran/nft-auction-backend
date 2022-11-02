@@ -1,5 +1,4 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ethers } from 'ethers';
 import { dutchAuctionAbi } from 'src/blockchain/abi/dutchAuction.abi';
 import { dutchAuctionAddress } from 'src/blockchain/address';
@@ -14,13 +13,11 @@ import { createContractInstance } from 'src/blockchain/contractInstance';
 import web3Instance from 'src/blockchain/web3Instance';
 import { UserModule } from 'src/user/user.module';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
-import { DutchAuctionParams } from './dto/dutch-auction-params.dto';
+import { CreateDutchAuctionDto } from './dto/create-dutch-auction.dto';
 import { DutchAuctionService } from './dutch-auction.service';
 import { BidStatus } from './enums/bid-status.enum';
 import { DutchAuctionStatus } from './enums/dutch-auction-status.enum';
 import { Bid } from './schema/bid.schema';
-import { DutchAuction } from './schema/dutch-auction.schema';
 const Web3 = require('web3');
 
 @Injectable()
@@ -28,7 +25,7 @@ export class EventTrackingService implements OnModuleInit {
 	private web3ProviderInstance;
 	private web3SocketConnection;
 	constructor(
-		@Inject(UserModule)
+		@Inject(UserService)
 		private userService: UserService,
 		private dutchAuctionService: DutchAuctionService,
 	) {}
@@ -155,7 +152,7 @@ export class EventTrackingService implements OnModuleInit {
 					.getListing(result.nft, result.tokenId)
 					.call();
 
-				const newAuctionData: DutchAuctionParams = {
+				const newAuctionData: CreateDutchAuctionDto = {
 					seller: item.seller,
 					nft: result.nft,
 					tokenId: result.tokenId.toString(),
@@ -174,8 +171,8 @@ export class EventTrackingService implements OnModuleInit {
 				console.log('Auction Item: ', newAuctionData);
 
 				dbResponse = await this.dutchAuctionService.createAuction(newAuctionData);
-				// if (dbResponse != null) 
-				// 	this.userService.addAuction(dbResponse);
+				if (dbResponse != null) 
+					this.userService.addAuction(dbResponse);
 
 				break;
 
@@ -193,11 +190,9 @@ export class EventTrackingService implements OnModuleInit {
 					timestamp: parseInt(timestamp),
 				}
 
-				// const auction = this.dutchAuctionService.findAll({
-				// 	seller: result.seller,
-				// 	nft: result.nft,
-				// 	tokenId: result.tokenId,
-				// });
+				dbResponse = await this.dutchAuctionService.createOrUpdateBid(bid);
+
+				console.log(dbResponse.bids);
 
 				break;
 

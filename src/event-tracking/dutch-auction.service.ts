@@ -1,32 +1,37 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateDutchAuctionDto } from "./dto/create-dutch-auction.dto";
+import { CreateBidDto } from "./dto/create-bid.dto";
+import { Bid } from "./schema/bid.schema";
+import { DutchAuction, DutchAuctionDocument } from "./schema/dutch-auction.schema";
+import { v4 as uuid } from 'uuid';
 import { ethers } from "ethers";
 import { dutchAuctionAbi } from "src/blockchain/abi/dutchAuction.abi";
 import { dutchAuctionAddress } from "src/blockchain/address";
 import { createContractInstance } from "src/blockchain/contractInstance";
-import { Repository } from "typeorm";
-import { DutchAuctionParams } from "./dto/dutch-auction-params.dto";
-import { NewBidInput } from "./dto/new-bid-input.dto";
-import { Bid } from "./schema/bid.schema";
-import { DutchAuction } from "./schema/dutch-auction.schema";
 
 @Injectable()
 export class DutchAuctionService {
     constructor(
-        @InjectRepository(DutchAuction)
-        private dutchAuctonRepository: Repository<DutchAuction>
+        @InjectModel(DutchAuction.name)
+        private dutchAuctionModel: Model<DutchAuctionDocument>
     ) {}
 
-    findAll(options?: DutchAuctionParams | any): Promise<DutchAuction[]> {
-        return this.dutchAuctonRepository.find(options);
+    findAll(): Promise<DutchAuction[]> {
+        return this.dutchAuctionModel.find().exec();
+    }
+
+    findAllByOptions(options?: any): Promise<DutchAuction[]> {
+        return this.dutchAuctionModel.find(options).exec();
     }
 
     findById(id: string): Promise<DutchAuction> {
-        return this.dutchAuctonRepository.findOneBy({ id });
+        return this.dutchAuctionModel.findOne({ id }).exec();
     }
 
-    async createAuction(newAuctionData: DutchAuctionParams): Promise<DutchAuction> {
-        const availabeTxHash = await this.findAll({
+    async createAuction(newAuctionData: CreateDutchAuctionDto): Promise<DutchAuction> {
+        const availabeTxHash = await this.findAllByOptions({
           transactionHash: newAuctionData.transactionHash,
         })[0];
 
@@ -43,8 +48,23 @@ export class DutchAuctionService {
             return;
         }
         else {
-          const auction = this.dutchAuctonRepository.create(newAuctionData);
-          return this.dutchAuctonRepository.save(auction);
+            const auction = new this.dutchAuctionModel({
+                id: uuid(),
+                seller: newAuctionData.seller,
+                nft: newAuctionData.nft,
+                tokenId: newAuctionData.tokenId,
+                startPrice: newAuctionData.startPrice,
+                endPrice: newAuctionData.endPrice,
+                startTime: newAuctionData.startTime,
+                duration: newAuctionData.duration,
+                paymentToken: newAuctionData.paymentToken,
+                status: newAuctionData.status,
+                bids: newAuctionData.bids,
+                blockNumber: newAuctionData.blockNumber,
+                transactionHash: newAuctionData.transactionHash,
+                timestamp: newAuctionData.timestamp,
+            });
+            return auction.save();
         }
     }
 
@@ -58,17 +78,11 @@ export class DutchAuctionService {
     }
 
     findBid(bidder: string, auction: DutchAuction): Bid {
-        const bids = auction.bids;
-        let bid: Bid;
-        bids.forEach((b) => {
-            if(b.bidder == bidder) {
-                bid = b;
-            }
-        });
-        return bid;
+        let index = this.indexOf(bidder, auction);
+        return auction.bids[index];
     }
 
-    findIndex(bidder: string, auction: DutchAuction): number {
+    indexOf(bidder: string, auction: DutchAuction): number {
         let index = -1;
         for(let i = 0; i < auction.bids.length; i++) {
             if(auction.bids[i].bidder == bidder) {
@@ -80,22 +94,24 @@ export class DutchAuctionService {
     }
 
     async createOrUpdateBid(
-        bid: Bid | NewBidInput | any,
+        bid: Bid | CreateBidDto,
     ): Promise<DutchAuction> {
-        let auction = await this.findAll({
+        let auction = await this.findAllByOptions({
           nft: bid.nft,
           tokenId: bid.tokenId,
         })[0];
 
-        let index = this.findIndex(bid.bidder, auction);
+        if(!auction) return;
+
+        let index = this.indexOf(bid.bidder, auction);
 
         if(index === -1) {
             auction.bids.push(bid);
-        }else {
+        } else {
             auction.bids[index] = bid;
         }
 
-        return this.dutchAuctonRepository.save(auction);
+        return auction.save();
     }
 
     // async getCurrentPrice(id: string): Promise<Number> {

@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from 'src/user/user.module';
 import { EventTrackingService } from './event-tracking.service';
-import { Bid } from './schema/bid.schema';
-import { DutchAuction } from './schema/dutch-auction.schema';
+import { Bid, BidSchema } from './schema/bid.schema';
+import { DutchAuction, DutchAuctionSchema } from './schema/dutch-auction.schema';
 import { EventTrackingResolver } from './event-tracking.resolver';
 import { DutchAuctionService } from './dutch-auction.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      DutchAuction,
-      Bid
+    MongooseModule.forFeature([
+      {name: DutchAuction.name, schema: DutchAuctionSchema},
+      {name: Bid.name, schema: BidSchema}
     ]),
     UserModule
   ],

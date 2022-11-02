@@ -1,38 +1,44 @@
-import { Column } from "typeorm";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 import { BidStatus } from "../enums/bid-status.enum";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 
+export type BidDocument = Bid & Document;
+
 @ObjectType()
+@Schema()
 export class Bid {
     @Field(type => ID)
-    @Column()
+    @Prop()
     bidder: string;
 
     @Field()
-    @Column()
+    @Prop()
     amount: number;
 
     @Field()
-    @Column()
+    @Prop()
     nft: string;
 
     @Field()
-    @Column()
+    @Prop()
     tokenId: string;
 
     @Field()
-    @Column({ default: BidStatus.PENDING })
+    @Prop({ default: BidStatus.PENDING })
     status: string;
 
     @Field()
-    @Column()
+    @Prop()
     blockNumber: number;
 
     @Field()
-    @Column()
+    @Prop()
     transactionHash: string;
 
     @Field()
-    @Column()
+    @Prop()
     timestamp: number;
 }
+
+export const BidSchema = SchemaFactory.createForClass(Bid);

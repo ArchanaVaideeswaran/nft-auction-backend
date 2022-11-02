@@ -1,27 +1,30 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 import { Field, ID, ObjectType } from "@nestjs/graphql";
-import { Bid } from "src/event-tracking/schema/bid.schema";
-import { DutchAuction } from "src/event-tracking/schema/dutch-auction.schema";
-import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryGeneratedColumn } from "typeorm";
+import { AbstractBaseEntity } from "src/common/schema/abstract-base.schema";
+import { Bid, BidSchema } from "src/event-tracking/schema/bid.schema";
+import { DutchAuction, DutchAuctionSchema } from "src/event-tracking/schema/dutch-auction.schema";
+
+export type UserDocument = User & Document;
 
 @ObjectType()
-@Entity()
-export class User {
-    @ObjectIdColumn()
-    _id: ObjectID;
-
-    @Field(type => ID)
-    @PrimaryGeneratedColumn('uuid')
+@Schema()
+export class User extends AbstractBaseEntity {
+    @Field(() => ID)
+    @Prop()
     id: string;
 
     @Field()
-    @Column()
+    @Prop()
     address: string;
 
     @Field(type => [DutchAuction])
-    @Column(type => DutchAuction)
+    @Prop({type: [{ type: DutchAuctionSchema, ref: 'DutchAuction' }]})
     auctions: DutchAuction[];
 
     @Field(type => [Bid])
-    @Column(type => Bid)
+    @Prop({type: [{ type: BidSchema, ref: 'Bid' }]})
     bids: Bid[];
 }
+
+export const UserSchema = SchemaFactory.createForClass(User);
