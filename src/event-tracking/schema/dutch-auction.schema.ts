@@ -1,70 +1,89 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { DutchAuctionStatus } from "../enums/dutch-auction-status.enum";
-import { Bid, BidSchema } from "./bid.schema";
+import { 
+    Bid, 
+    // BidSchema 
+} from "./bid.schema";
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { AbstractBaseEntity } from 'src/common/schema/abstract-base.schema';
+import { Column, Entity } from 'typeorm';
 
-export type DutchAuctionDocument = DutchAuction & Document;
+// export type DutchAuctionDocument = DutchAuction & Document;
 
 @ObjectType()
-@Schema()
+// @Schema()
+@Entity()
 export class DutchAuction extends AbstractBaseEntity {
     @Field(type => ID)
-    @Prop()
+    // @Prop()
+    @Column()
     id: string;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     seller: string;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     nft: string;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     tokenId: string;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     startPrice: number;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     endPrice: number;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     startTime: number;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     duration: number;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     paymentToken: string;
     
     @Field()
-    @Prop({ default: DutchAuctionStatus.NOT_ACTIVE })
+    // @Prop({ default: DutchAuctionStatus.NOT_ACTIVE })
+    @Column({default: DutchAuctionStatus.NOT_ACTIVE})
     status: string;
 
-    @Field(type => [Bid])
-    @Prop({type: [{ type: BidSchema, ref: 'Bid' }]})
+    @Field(type => [Bid], { defaultValue: [] })
+    // @Prop({type: [{ type: BidSchema, ref: 'Bid' }]})
+    @Column(() => Bid)
     bids: Bid[];
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     blockNumber: number;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     transactionHash: string;
 
     @Field()
-    @Prop()
+    // @Prop()
+    @Column()
     timestamp: number;
 }
 
-export const DutchAuctionSchema = SchemaFactory.createForClass(DutchAuction);
+// export const DutchAuctionSchema = SchemaFactory.createForClass(DutchAuction);

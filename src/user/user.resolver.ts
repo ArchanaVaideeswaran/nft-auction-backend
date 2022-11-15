@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/user.dto';
 import { User } from './schema/user.schema';
 import { UserService } from './user.service';
 
@@ -14,7 +14,7 @@ export class UserResolver {
         return this.userService.addUser(newUserData);
     }
 
-    @Query(returns => [User])
+    @Query(returns => [User], { defaultValue: [], nullable: true })
     users(): Promise<User[]> {
         return this.userService.findAll();
     }

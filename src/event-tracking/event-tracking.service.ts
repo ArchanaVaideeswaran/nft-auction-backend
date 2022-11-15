@@ -24,6 +24,7 @@ const Web3 = require('web3');
 export class EventTrackingService implements OnModuleInit {
 	private web3ProviderInstance;
 	private web3SocketConnection;
+	private ethersProvider;
 	constructor(
 		@Inject(UserService)
 		private userService: UserService,
@@ -35,32 +36,36 @@ export class EventTrackingService implements OnModuleInit {
 	}
 
 	async initiateWebSocket(): Promise<void> {
-		this.web3SocketConnection = new Web3.providers.WebsocketProvider(
-			webSocketProvider,
-			web3ConnectionOptions,
+		// this.web3SocketConnection = new Web3.providers.WebsocketProvider(
+		// 	webSocketProvider,
+		// 	web3ConnectionOptions,
+		// );
+
+		this.ethersProvider = ethers.providers.getDefaultProvider(
+			'http://localhost:8545'
 		);
 
 		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const that = this;
-		this.web3SocketConnection.on('connect', function () {
-			console.log(' PROVIDER SUCESSFULLY CONNECTED');
-			// <- fires after successful connection
-			that.subscribeEvent(dutchAuctionAddress, auctionCreatedEvent);
-			that.subscribeEvent(dutchAuctionAddress, auctionItemSoldEvent);
-			that.subscribeEvent(dutchAuctionAddress, auctionCancelledEvent);
-		});
-		this.web3SocketConnection.on('error', function (err) {
-			console.log('ERROR', '~ on-error:', err); // <- never fires
-			that.initiateWebSocket();
-		});
-		this.web3SocketConnection.on('end', async (err) => {
-			console.log('ERROR', '~ on-end:', err); // <- never fires
-			that.initiateWebSocket();
-		});
-		this.web3SocketConnection.on('close', (event) => {
-			console.log('ERROR', '~ on-close:', event); // <- never fires
-			that.initiateWebSocket();
-		});
+		// this.web3SocketConnection.on('connect', function () {
+		// 	console.log(' PROVIDER SUCESSFULLY CONNECTED');
+		// 	// <- fires after successful connection
+		// 	// that.subscribeEvent(dutchAuctionAddress, auctionCreatedEvent);
+		// 	// that.subscribeEvent(dutchAuctionAddress, auctionItemSoldEvent);
+		// 	// that.subscribeEvent(dutchAuctionAddress, auctionCancelledEvent);
+		// });
+		// this.web3SocketConnection.on('error', function (err) {
+		// 	console.log('ERROR', '~ on-error:', err); // <- never fires
+		// 	that.initiateWebSocket();
+		// });
+		// this.web3SocketConnection.on('end', async (err) => {
+		// 	console.log('ERROR', '~ on-end:', err); // <- never fires
+		// 	that.initiateWebSocket();
+		// });
+		// this.web3SocketConnection.on('close', (event) => {
+		// 	console.log('ERROR', '~ on-close:', event); // <- never fires
+		// 	that.initiateWebSocket();
+		// });
 	}
 
 	async subscribeEvent(
@@ -73,6 +78,7 @@ export class EventTrackingService implements OnModuleInit {
 			encodeEventSignature(
 				eventObject.EventSignature,
 			);
+			console.log('topic: ', topic);
 			const connection = new Web3(this.web3SocketConnection);
 
 			connection.eth
@@ -101,8 +107,8 @@ export class EventTrackingService implements OnModuleInit {
 						events.topics.slice(1, topiclength),
 					);
 
-					// saving data after 3 seconds so that block is mined
-					await new Promise((res) => setTimeout(res, 3000));
+					// saving data after 5 seconds so that block is mined
+					await new Promise((res) => setTimeout(res, 5000));
 
 					return this.saveData(
 						contractAddress,
@@ -132,9 +138,10 @@ export class EventTrackingService implements OnModuleInit {
 		event: any,
 		eventName: string,
 	): Promise<void> {
-		const contractInstance = await createContractInstance(
-			dutchAuctionAbi,
+		const contractInstance = new ethers.Contract(
 			contractAddress,
+			dutchAuctionAbi,
+			this.ethersProvider,
 		);
 
 		const timestamp = `${
@@ -142,15 +149,14 @@ export class EventTrackingService implements OnModuleInit {
 			.timestamp
 		}`;
 
-		let dbResponse: any;
-
 		switch (eventName) {
 			case 'AuctionCreated':
 				console.log('inside auction created event handler');
 
-				const item = await contractInstance.methods
-					.getListing(result.nft, result.tokenId)
-					.call();
+				const item = await contractInstance.getListing(
+					result.nft, 
+					result.tokenId
+				);
 
 				const newAuctionData: CreateDutchAuctionDto = {
 					seller: item.seller,
@@ -170,16 +176,18 @@ export class EventTrackingService implements OnModuleInit {
 
 				console.log('Auction Item: ', newAuctionData);
 
-				dbResponse = await this.dutchAuctionService.createAuction(newAuctionData);
-				if (dbResponse != null) 
-					this.userService.addAuction(dbResponse);
+				// const createResponse = await this.dutchAuctionService.createAuction(newAuctionData);
+				// if (createResponse != null) 
+				// 	this.userService.addAuction(createResponse);
+
+				// console.log('inserted: ', createResponse);
 
 				break;
 
 			case 'AuctionItemSold':
 				console.log('inside auction item sold event handler');
 
-				let bid: Bid = {
+				const bid: Bid = {
 					bidder: result.buyer,
 					amount: result.amount,
 					nft: result.nft,
@@ -190,13 +198,33 @@ export class EventTrackingService implements OnModuleInit {
 					timestamp: parseInt(timestamp),
 				}
 
-				dbResponse = await this.dutchAuctionService.createOrUpdateBid(bid);
+				console.log('Auction bid: ', bid);
 
-				console.log(dbResponse.bids);
+				// const createBidRes = await this.dutchAuctionService.createOrUpdateBid(bid);
+
+				// console.log('bid added: ', createBidRes);
 
 				break;
 
 			case 'AuctionCancelled':
+				console.log('inside auction cancelled event handler');
+
+				const auctionUpdateData = DutchAuctionStatus.CANCELLED;
+
+				const options = {
+					seller: result.seller,
+					nft: result.nft,
+					tokenId: result.tokenId,
+				}
+
+				// const updateRes = await this.dutchAuctionService.updateAuctionStatus(
+				// 	auctionUpdateData,
+				// 	options
+				// );
+
+				// console.log('status updated: ', updateRes);
+
+				break;
 		}
 	}
 }

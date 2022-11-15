@@ -3,49 +3,63 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Bid } from 'src/event-tracking/schema/bid.schema';
 import { DutchAuction } from 'src/event-tracking/schema/dutch-auction.schema';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User, UserDocument } from './schema/user.schema';
+import { CreateUserDto } from './dto/user.dto';
+import { 
+    User, 
+    // UserDocument 
+} from './schema/user.schema';
 import { v4 as uuid } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
     constructor(
-        @InjectModel(User.name)
-        private userModel: Model<UserDocument>
+        // @InjectModel(User.name)
+        // private userModel: Model<UserDocument>
+        @InjectRepository(User)
+        private userRepository: Repository<User>
     ) {}
 
-    findAll(): Promise<UserDocument[]> {
-        return this.userModel.find().exec();
+    findAll(): Promise<User[]> {
+        // return this.userModel.find().exec();
+        return this.userRepository.find();
     }
 
-    findById(id: string): Promise<UserDocument> {
-        return this.userModel.findOne({ id }).exec();
+    findById(id: string): Promise<User> {
+        // return this.userModel.findOne({ id }).exec();
+        return this.userRepository.findOneBy({ id });
     }
 
-    findByAddress(address: string): Promise<UserDocument> {
-        return this.userModel.findOne({ address }).exec();
+    findByAddress(address: string): Promise<User> {
+        // return this.userModel.findOne({ address }).exec();
+        return this.userRepository.findOneBy({ address });
     }
 
-    async addUser(newUserData: CreateUserDto): Promise<UserDocument> {
+    async addUser(newUserData: CreateUserDto): Promise<User> {
         const user = await this.findByAddress(newUserData.address);
         if(!user) {
-            let newUser = new this.userModel({
+            // let newUser = new this.userModel({
+            //     id: uuid(),
+            //     address: newUserData.address,
+            //     auctions: [],
+            //     bids: [],
+            // });
+            let newUser = this.userRepository.create({
                 id: uuid(),
                 address: newUserData.address,
-                auctions: [],
-                bids: [],
             });
             console.log("--------------new user ", newUser.address , " created--------------");
-            return newUser.save();
+            return this.userRepository.save(newUser);
         }
         return user;
     }
 
-    async addAuction(auctionData: DutchAuction): Promise<UserDocument> {
+    async addAuction(auctionData: DutchAuction): Promise<User> {
         console.log("add auction to user\n", auctionData);
         // return this.userModel.findOne(
         //     { address: auctionData.seller }, 
-        //     (err: any, userDoc: UserDocument) => {
+        //     (err: any, userDoc: User) => {
         //         if(err != null) {
         //             console.log(err);
         //         }
@@ -60,16 +74,16 @@ export class UserService {
         // ).exec();
         const user = await this.findByAddress(auctionData.seller);
         if(!user) return;
-        console.log("user document: ", user);
+        // console.log("user document: ", user);
         user.auctions.push(auctionData);
-        console.log(user.auctions);
-        return user.save(); 
+        // console.log(user.auctions);
+        return this.userRepository.save(user); 
     }
 
-    async addBid(bidData: Bid): Promise<UserDocument> {
+    async addBid(bidData: Bid): Promise<User> {
         const user = await this.findByAddress(bidData.bidder);
         if(!user) return;
         user.bids.push(bidData);
-        return user.save(); 
+        return this.userRepository.save(user); 
     }
 }

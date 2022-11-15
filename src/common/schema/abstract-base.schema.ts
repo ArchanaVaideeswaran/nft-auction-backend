@@ -1,8 +1,11 @@
 import { Schema, Prop } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose'
+import * as mongoose from 'mongoose';
+import { Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 
-@Schema()
+// @Schema()
+@Entity()
 export class AbstractBaseEntity {
-    @Prop({ type: mongoose.Schema.Types.ObjectId, auto: true })
-    _id: string;
+    // @Prop({ type: mongoose.Schema.Types.ObjectId, auto: true })
+    @ObjectIdColumn()
+    _id: ObjectID;
 }
