@@ -85,7 +85,7 @@ export class DutchAuctionService implements OnModuleInit {
                             log.args.tokenId
                         );
                         console.log('Listing: ', listing);
-                        const createRes = await this.createAuctionEventHandler(
+                        const createRes = await this.auctionCreatedEventHandler(
                             log,
                             listing,
                             timestamp,
@@ -163,7 +163,11 @@ export class DutchAuctionService implements OnModuleInit {
 
         if(endedTx) {
             this.logger.debug('UPDATE: endedTx: ');
-            console.log(endedTx)
+            console.log(endedTx);
+            let endTime = auction.startTime + auction.duration;
+            if(endedTx.timestamp >= endTime) {
+                auction.status = DutchAuctionStatus.ENDED;
+            }
             auction.endedTx = endedTx;
         }
         if(settledBid) {
@@ -175,7 +179,7 @@ export class DutchAuctionService implements OnModuleInit {
         return this.dutchAuctionRepository.save(auction);
     }
 
-    createAuctionEventHandler(
+    auctionCreatedEventHandler(
         log: any, 
         listing: any,
         timestamp: number
@@ -228,7 +232,7 @@ export class DutchAuctionService implements OnModuleInit {
         };
         let settledBid: BidDto = {
             bidder: log.args.buyer,
-            amount: parseFloat(log.args.amount),
+            amount: parseFloat(utils.formatEther(log.args.amount)),
             executed: true,
             transaction: endTxSettled,
         };
